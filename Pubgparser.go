@@ -65,26 +65,26 @@ func ReadPubgFile(filename string) []byte {
 	return result
 }
 
-// Same as above but with a longer (6-byte) length field??
+// Same as above but with a longer (8-byte/64-bit) length field??
 func ReadPubgFileLong(filename string) []byte {
 	f, err := os.Open(filename)
 	ErrorHandler(err)
 
-	lengthData := make([]byte, 6)
+	lengthData := make([]byte, 8)
 	read, err := f.Read(lengthData)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Length Read %v, result: %v\n", read, lengthData[:6])
+	fmt.Printf("Length Read %v, result: %v\n", read, lengthData[:8])
 
-	length := binary.LittleEndian.Uint32(lengthData[0:6])
+	length := binary.BigEndian.Uint64(lengthData[0:8])
 	fmt.Printf("Total file length length: %v bytes\n", length)
 
 	data := make([]byte, length)
 	read, err = f.Read(data)
 	ErrorHandler(err)
 
-	data = bytes.Trim(data, "\x00")
+	//data = bytes.Trim(data, "\x00")
 
 	var result []byte
 	for _, b := range data {
